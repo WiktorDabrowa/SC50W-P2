@@ -202,3 +202,15 @@ def category_index(request, cat):
         message = 'No active listings in this category'
         context = {'listings': listings,'message':message}
     return render(request, "auctions/index.html", context)
+
+def watchlist(request):
+    user = request.user
+    listings = user.watchlist.all()
+    context = {'listings': listings, 'message':'Listings watched by You'}
+    return render(request, 'auctions/index.html', context)
+
+def watchlist_add(request, pk):
+    user = request.user
+    item = Listing.objects.get(id=pk)
+    user.watchlist.add(item)
+    return HttpResponseRedirect(f'/item/{pk}')

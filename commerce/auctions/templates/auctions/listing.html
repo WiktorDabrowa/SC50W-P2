@@ -16,7 +16,10 @@
   {% if user.is_authenticated %}
   <a href = "{% url 'bid' item.id %}">
     <button >Make bid</button>
-    </a>
+  </a>
+  <a href = "{% url 'watchlistadd' item.id %}">
+    <button>Watchlist +</button>
+  </a>
   {% endif %}
   {% if close %}
   <a href = "{% url 'close' item.id %}">
