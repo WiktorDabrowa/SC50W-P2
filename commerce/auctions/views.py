@@ -1,11 +1,12 @@
 from asyncio.windows_events import NULL
 from datetime import datetime
 from email import message
+from http.client import HTTPResponse
 from pickle import NONE
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from .forms import listingForm, bidForm, CommentForm
 from .models import Listing, Bid, Comment
@@ -105,6 +106,14 @@ def listing_page(request, pk):
     current_bid = Bid.objects.get(listing=listing_item)
     comment_form = CommentForm()
     comments = Comment.objects.filter(listing=listing_item)
+    user = request.user
+    watchable = False
+    if user.is_authenticated:
+        current_watchlist = user.watchlist.all()
+        if listing_item in current_watchlist: 
+            watchable = False
+        else:
+            watchable = True
 
     # Handling comments:
     if request.method == "POST":
@@ -130,7 +139,8 @@ def listing_page(request, pk):
         'current_bid':current_bid,
         'message':message,
         'comment_form':comment_form,
-        'comments': comments}
+        'comments': comments,
+        'watchable': watchable}
     return render(request, 'auctions/listing.html', context)
 
 @login_required(login_url='/login')
@@ -203,14 +213,23 @@ def category_index(request, cat):
         context = {'listings': listings,'message':message}
     return render(request, "auctions/index.html", context)
 
+@login_required(login_url='/login')
 def watchlist(request):
     user = request.user
     listings = user.watchlist.all()
     context = {'listings': listings, 'message':'Listings watched by You'}
-    return render(request, 'auctions/index.html', context)
+    return render(request, 'auctions/watchlist.html', context)
 
+@login_required(login_url='/login')
 def watchlist_add(request, pk):
     user = request.user
     item = Listing.objects.get(id=pk)
     user.watchlist.add(item)
     return HttpResponseRedirect(f'/item/{pk}')
+
+@login_required(login_url='/login')
+def watchlist_remove(request, pk):
+    user = request.user
+    item = Listing.objects.get(id=pk)
+    user.watchlist.remove(item)
+    return redirect(request.META.get('HTTP_REFERER', '/'))

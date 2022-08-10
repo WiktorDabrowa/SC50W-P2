@@ -17,7 +17,7 @@ class Listing(models.Model):
     photo = models.CharField(max_length=2000, blank=True)
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="is_selling")
     is_open = models.BooleanField(default=True)
-    winner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="winner")
+    winner = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="winner")
     
     def describe(self):
         return self.description[0:40]

@@ -17,9 +17,15 @@
   <a href = "{% url 'bid' item.id %}">
     <button >Make bid</button>
   </a>
+  {% if watchable %}
   <a href = "{% url 'watchlistadd' item.id %}">
     <button>Watchlist +</button>
   </a>
+  {% else %}
+  <a href = "{% url 'watchlist_remove' item.id %}">
+    <button>Watchlist -</button>
+  </a>
+  {% endif %}
   {% endif %}
   {% if close %}
   <a href = "{% url 'close' item.id %}">

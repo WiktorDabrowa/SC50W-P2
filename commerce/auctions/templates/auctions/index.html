@@ -2,7 +2,7 @@
 
 {% block body %}
     <h2>{{message}}</h2>
-    <div style="display:flex; flex-wrap:wrap; justify-content: center;">
+    <div class="index_wrapper">
     {% for listing in listings %}
     <div style="width:30vw;height:350px; border:1px solid; margin:4px; padding:10px; position:relative">
         <a href="{% url 'listing'  listing.id %}">
