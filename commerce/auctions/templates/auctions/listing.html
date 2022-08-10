@@ -1,0 +1,41 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div>
+  <h1 style="color:red">{{message}}</h1>
+  <h1>{{item.title}}{% if not item.is_open %} | Auction Closed | {%endif%}</h1>
+  <img src="{{item.photo}}"  alt='No image found' style="width:400px;height:400px;object-fit: contain;">
+  <p>Seller : {{item.seller}}</p>
+  <p>Category : <a href="{% url 'category' item.category %}">{{item.category}}</a></p>
+  <p>Starting Price : {{item.starting_price}}$</p>
+  <p>Current Price : {{current_bid.price}}$ 
+  <br>Offer placed on : {{current_bid.last_modified}} by : {{current_bid.bidder}}</p>
+  <p>{{item.description}}</p>
+</div>
+{% if item.is_open %}
+  {% if user.is_authenticated %}
+  <a href = "{% url 'bid' item.id %}">
+    <button >Make bid</button>
+    </a>
+  {% endif %}
+  {% if close %}
+  <a href = "{% url 'close' item.id %}">
+      <button >Close auction</button>
+    </a>
+  {% endif %}
+{% endif %}
+<h2>Comments:</h2>
+<form method="POST" action="">
+  {{comment_form}}
+  {% csrf_token %}
+  <input type="submit" value="Post Comment">
+</form>
+{% for comment in comments %}
+  <div>
+    <small>{{comment.user}} | Posted : {{comment.added|timesince}} ago</small>
+    <p>{{comment.body}}</p>
+    <hr>
+  </div>
+{% endfor %}
+
+  {% endblock %}
