@@ -244,3 +244,9 @@ def watchlist_remove(request, pk):
     item = Listing.objects.get(id=pk)
     user.watchlist.remove(item)
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='/login')
+def my_listings(request):
+    user = request.user
+    listings = user.is_selling.all()
+    return render(request, 'auctions/my_listings.html', {'listings':listings, 'message':'My Listings'})

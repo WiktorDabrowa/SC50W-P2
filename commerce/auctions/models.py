@@ -25,7 +25,10 @@ class Listing(models.Model):
         return self.description[0:40]
 
     def __str__(self):
-        return f"{self.title}"
+        if self.is_open == True:
+            return f"{self.title} | OPEN"
+        else:
+            return f"{self.title} | CLOSED"
 
         
 class Bid(models.Model):
