@@ -1,8 +1,4 @@
 body {
-    padding: 10px;
+    padding: 30px;
+    background-color: red;
 }
-.index_wrapper {
-    display:flex;
-    flex-wrap:wrap;
-    justify-content: space-around;
-  }

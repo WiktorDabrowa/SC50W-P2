@@ -1,12 +1,20 @@
 {% extends 'auctions/layout.html' %}
 
 {% block body %}
+{% for message in messages %}
+{{ message }}
+{% endfor %}
   <h2>You are bidding on {{item.title}}</h2>
+  {% if bid %}
   <p>Current bid : {{current_bid.price}}$</p>
+  {% else %}
+  <p>You are the first person to bid on this item!</p>
+  <p> The starting price is {{item.starting_price}}$<p>
+  {% endif %}
   <form method="POST" action="">
     {% csrf_token %}
     {{form}}
-    <input type="submit">
+    <input type="submit" value="Bid">
   </form>
   
 {% endblock %}

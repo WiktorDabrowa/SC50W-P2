@@ -1,7 +1,9 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-
+{% for message in messages %}
+{{ message }}
+{% endfor %}
     <div>
       <form method="POST" action="">
         {% csrf_token %}

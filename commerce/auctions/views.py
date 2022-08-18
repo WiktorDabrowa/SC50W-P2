@@ -1,8 +1,6 @@
-from asyncio.windows_events import NULL
+
 from datetime import datetime
-from email import message
-from http.client import HTTPResponse
-from pickle import NONE
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -11,7 +9,7 @@ from django.urls import reverse
 from .forms import listingForm, bidForm, CommentForm
 from .models import Listing, Bid, Comment
 from django.contrib.auth.decorators import login_required
-
+from django.core.exceptions import ObjectDoesNotExist
 from .models import User
 
 
@@ -78,23 +76,16 @@ def add_listing(request):
     
     if request.method == 'POST':
         form = listingForm(request.POST)
-        listing = form.save(commit=False)
-        listing.seller = request.user
         
         if form.is_valid():
+            listing = form.save(commit=False)
+            listing.seller = request.user
             form.save()
             listing = Listing.objects.last()
-            # Creating an initial bid
-            bid = Bid.objects.create_bid(
-                listing = listing,
-                price = listing.starting_price,
-                last_modified=datetime.now(),
-                bidder = listing.seller
-                )
             return HttpResponseRedirect('/')
-            #ToDo
         else:
-            return HttpResponse('Please fill out all of the fields correctly!')
+            messages.error(request, 'Please fill out all of the fields correctly!')
+            return redirect("add")
     else:
         form = listingForm()
         context = {'form': form}
@@ -103,7 +94,6 @@ def add_listing(request):
 def listing_page(request, pk):
 
     listing_item = Listing.objects.get(id=pk)
-    current_bid = Bid.objects.get(listing=listing_item)
     comment_form = CommentForm()
     comments = Comment.objects.filter(listing=listing_item)
     user = request.user
@@ -124,7 +114,12 @@ def listing_page(request, pk):
         if form.is_valid():
             comment.save()
             return HttpResponseRedirect(f'/item/{listing_item.id}')
-
+    try:
+        current_bid = Bid.objects.get(listing=listing_item)
+        bid = True
+    except ObjectDoesNotExist:
+        bid = False
+        current_bid = None
     if listing_item.seller == request.user:
         closable = True
     else:
@@ -140,19 +135,25 @@ def listing_page(request, pk):
         'message':message,
         'comment_form':comment_form,
         'comments': comments,
-        'watchable': watchable}
+        'watchable': watchable,
+        'bid': bid}
     return render(request, 'auctions/listing.html', context)
 
 @login_required(login_url='/login')
 def bid(request, pk):
     form = bidForm()
     listing_item = Listing.objects.get(id=pk)
-    current_bid = Bid.objects.get(listing=listing_item)
-    
+    try:
+        current_bid = Bid.objects.get(listing=listing_item)
+        bid = True
+    except ObjectDoesNotExist:
+        current_bid = None
+        bid = False
     # Checking if user placing bid
     # is not the same as selling item
     if listing_item.seller == request.user:
-        return HttpResponse('You can not bid your own item')
+        messages.error(request, 'You can not bid your own item!')
+        return redirect(f"/item/{listing_item.id}")
 
     # Processing the form
     if request.method == "POST":
@@ -161,13 +162,20 @@ def bid(request, pk):
         bid.listing = listing_item
         bid.bidder = request.user
 
-        # Checking if bidder is not beating his own bid
-        if current_bid.bidder == bid.bidder:
-            return HttpResponse('You tried to beat your own bid')
+        if bid.price <= listing_item.starting_price:
+            messages.error(request, 'Your bid must be higher than starting and current price!')
+            return redirect(f'/item/{listing_item.id}/bid')
 
-        # Checking if placed bid is higher than previous
-        if bid.price <= current_bid.price:
-            return HttpResponse('Your bid must be higher than the previous one')
+        if current_bid is not None:
+            # Checking if bidder is not beating his own bid
+            if current_bid.bidder == bid.bidder:
+                messages.error(request, 'You tried to beat your own bid!')
+                return redirect(f'/item/{listing_item.id}/bid')
+
+            # Checking if placed bid is higher than previous
+            if bid.price <= current_bid.price:
+                messages.error(request, 'Your bid must be higher than the previous one!')
+                return redirect(f'/item/{listing_item.id}/bid')
 
         if form.is_valid():
             form.save()
@@ -176,7 +184,10 @@ def bid(request, pk):
     context = {
         'item':listing_item,
         'form':form,
-        'current_bid':current_bid}
+        'current_bid':current_bid,
+        'bid':bid,
+        
+        }
     return render(request, "auctions/bid.html", context)
 
 @login_required(login_url='/login')
@@ -186,14 +197,14 @@ def close(request, pk):
     # Checking if user is the same as listing creator
     if listing_item.seller == request.user:
         listing_item.is_open = False
-        # Setting the listing instance field winner as 
+        # Setting the listing instance field 'winner' as 
         # current highest bidder
         listing_item.winner = listing_item.current_bid.bidder
         listing_item.save()
         return HttpResponseRedirect(reverse('index'))
     else:
-        return HttpResponse('You are not the owner of the item')
-
+        messages.error(request, 'You are not the owner of the item, you cannot close this auction!')
+        return redirect(f"/item/{listing_item.id}")
 def category_list(request):
     category_list = Listing.objects.values_list('category', flat=True)
     category_list = list(set(category_list))

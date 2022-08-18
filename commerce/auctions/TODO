@@ -1,5 +1,6 @@
-1. views.add_listing handle errors
+1. views.add_listing handle errors (all of the HttpResponse)
+2. closing listing 
 6. General CSS formatting
-index list Current price not working correctly
-with new listings
 read on static files
+7. deleting comments
+8. bid higher than starting price

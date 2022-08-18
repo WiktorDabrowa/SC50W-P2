@@ -1,6 +1,9 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+{% for message in messages %}
+{{ message }}
+{% endfor %}
 <div>
   <h1 style="color:red">{{message}}</h1>
   <h1>{{item.title}}{% if not item.is_open %} | Auction Closed | {%endif%}</h1>
@@ -8,8 +11,12 @@
   <p>Seller : {{item.seller}}</p>
   <p>Category : <a href="{% url 'category' item.category %}">{{item.category}}</a></p>
   <p>Starting Price : {{item.starting_price}}$</p>
+  {% if bid %}
   <p>Current Price : {{current_bid.price}}$ 
   <br>Offer placed on : {{current_bid.last_modified}} by : {{current_bid.bidder}}</p>
+  {% else %}
+  <p>No bids were placed yet</p>
+  {% endif %}
   <p>{{item.description}}</p>
 </div>
 {% if item.is_open %}
@@ -34,11 +41,13 @@
   {% endif %}
 {% endif %}
 <h2>Comments:</h2>
-<form method="POST" action="">
-  {{comment_form}}
-  {% csrf_token %}
-  <input type="submit" value="Post Comment">
-</form>
+{% if user.is_authenticated %}
+  <form method="POST" action="">
+    {{comment_form}}
+    {% csrf_token %}
+    <input type="submit" value="Post Comment">
+  </form>
+{% endif %}
 {% for comment in comments %}
   <div>
     <small>{{comment.user}} | Posted : {{comment.added|timesince}} ago</small>
