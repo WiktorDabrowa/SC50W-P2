@@ -3,30 +3,29 @@
 
 {% block body %}
 <h2>{{message}}</h2>
-<div style="display:flex; flex-wrap:wrap; justify-content: center;">
+<div class="index_wrapper">
 {% for listing in listings %}
-<div style="width:30vw;height:350px; border:1px solid; margin:4px; padding:10px; position:relative">
+<div class="listing_container">
     <a href="{% url 'listing'  listing.id %}">
-        <h4>{{listing.title}}</h4>
+        <h4 class="listing_title">{{listing.title}}</h4>
     </a>
     <hr>
     <img src="{{listing.photo}}"  alt='No image found' style="width:30vw;height:180px;object-fit: contain;">
-    <p style="position:absolute;bottom:0">
-        Seller: {{listing.seller}} | Starting Price: {{listing.starting_price}}$
+    <div class="listing_description">
+        <p>Seller: {{listing.seller}} | Starting Price: {{listing.starting_price}}$
         <br>
-        {% if listing.current_bid.price == Null %}
-        Current Bid : {{listing.starting_price}}
+        {% if not listing.current_bid.price  %}
+        No bids were placed yet
         {% else %}
         Current Bid : {{listing.current_bid.price}}$
         {% endif %}
-        <br>{{listing.describe}}
-    </p>
+        <br>
+        Category: {{listing.category}}
+        <br>
+        {{listing.describe}}</p>
+    </div>
     <a href="{% url 'watchlist_remove' listing.id %}">
-      <button style="
-      position:absolute;
-      top:12px;
-      right:10px;
-      border:none">Watchlist -</button>
+      <button class="watchlist_delete">Watchlist -</button>
     </a>
     
 </div>

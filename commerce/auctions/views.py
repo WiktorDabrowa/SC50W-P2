@@ -250,3 +250,13 @@ def my_listings(request):
     user = request.user
     listings = user.is_selling.all()
     return render(request, 'auctions/my_listings.html', {'listings':listings, 'message':'My Listings'})
+
+def comment_delete(request, comment_id):
+    comment = Comment.objects.get(id=comment_id)
+    listing_item = comment.listing
+    if not request.user == comment.user:
+        messages.error(request, 'You cannot delete this comment!')
+        return redirect(f"/item/{listing_item.id}")
+    else:
+        comment.delete()
+        return redirect(f"/item/{listing_item.id}")

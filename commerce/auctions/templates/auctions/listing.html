@@ -48,9 +48,17 @@
     <input type="submit" value="Post Comment">
   </form>
 {% endif %}
+<hr>
 {% for comment in comments %}
   <div>
-    <small>{{comment.user}} | Posted : {{comment.added|timesince}} ago</small>
+    <small>{{comment.user}} | Posted : {{comment.added|timesince}} ago 
+      {% if comment.user == request.user %}
+      | 
+      <a href="{% url 'delete_comment' comment.id %}"
+      <button class="comment_delete">Delete</button>
+      </a>
+      {% endif %}
+    </small>
     <p>{{comment.body}}</p>
     <hr>
   </div>
