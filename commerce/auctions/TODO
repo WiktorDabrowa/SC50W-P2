@@ -1,6 +1,5 @@
-1. views.add_listing handle errors (all of the HttpResponse)
+
 2. closing listing 
 6. General CSS formatting
-read on static files
 7. deleting comments
-8. bid higher than starting price
+8. error CSS (.error class)
