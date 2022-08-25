@@ -114,14 +114,21 @@ def listing_page(request, pk):
         if form.is_valid():
             comment.save()
             return HttpResponseRedirect(f'/item/{listing_item.id}')
+        
     try:
         current_bid = Bid.objects.get(listing=listing_item)
         bid = True
     except ObjectDoesNotExist:
         bid = False
         current_bid = None
+        # Checking if user is owner of the item and if 
+        # there is bet placed
     if listing_item.seller == request.user:
-        closable = True
+        try:
+            bid_exists = Bid.objects.get(listing=listing_item)
+            closable = True
+        except ObjectDoesNotExist:
+            closable = False
     else:
         closable = False
     if listing_item.winner == request.user:
