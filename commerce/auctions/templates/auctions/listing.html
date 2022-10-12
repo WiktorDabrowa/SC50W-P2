@@ -4,64 +4,81 @@
 {% for message in messages %}
 {{ message }}
 {% endfor %}
-<div>
-  <h1 style="color:red">{{message}}</h1>
-  <h1>{{item.title}}{% if not item.is_open %} | Auction Closed | {%endif%}</h1>
-  <img src="{{item.photo}}"  alt='No image found' style="width:400px;height:400px;object-fit: contain;">
-  <p>Seller : {{item.seller}}</p>
-  <p>Category : <a href="{% url 'category' item.category %}">{{item.category}}</a></p>
-  <p>Starting Price : {{item.starting_price}}$</p>
-  {% if bid %}
-  <p>Current Price : {{current_bid.price}}$ 
-  <br>Offer placed on : {{current_bid.last_modified}} by : {{current_bid.bidder}}</p>
-  {% else %}
-  <p>No bids were placed yet</p>
-  {% endif %}
-  <p>{{item.description}}</p>
-</div>
-{% if item.is_open %}
-  {% if user.is_authenticated %}
-  <a href = "{% url 'bid' item.id %}">
-    <button >Make bid</button>
-  </a>
-  {% if watchable %}
-  <a href = "{% url 'watchlistadd' item.id %}">
-    <button>Watchlist +</button>
-  </a>
-  {% else %}
-  <a href = "{% url 'watchlist_remove' item.id %}">
-    <button>Watchlist -</button>
-  </a>
-  {% endif %}
-  {% endif %}
-  {% if close %}
-  <a href = "{% url 'close' item.id %}">
-      <button >Close auction</button>
-    </a>
-  {% endif %}
-{% endif %}
-<h2>Comments:</h2>
-{% if user.is_authenticated %}
-  <form method="POST" action="">
-    {{comment_form}}
-    {% csrf_token %}
-    <input type="submit" value="Post Comment">
-  </form>
-{% endif %}
-<hr>
-{% for comment in comments %}
-  <div>
-    <small>{{comment.user}} | Posted : {{comment.added|timesince}} ago 
-      {% if comment.user == request.user %}
-      | 
-      <a href="{% url 'delete_comment' comment.id %}"
-      <button class="comment_delete">Delete</button>
-      </a>
-      {% endif %}
-    </small>
-    <p>{{comment.body}}</p>
-    <hr>
+<h1 style="color:red">{{message}}</h1>
+<div class='listing_page'>
+  <div class='left'>
+    <div class='main block listing_photo_container'>
+      <h1 class='item_title'>{{item.title}}{% if not item.is_open %} | Auction Closed | {%endif%}</h1>
+      <img class='listing_photo' src="{{item.photo}}"  alt='No image found' style="object-fit: contain;">
+    </div>
+    <div class='main block listing_desc'>
+      <h3>Item Description</h3>
+      <p class='listing_desc_text'>{{item.description}}</p>
+    </div>
   </div>
-{% endfor %}
-
-  {% endblock %}
+  <div class='right'>
+    <div class='main block listing_info_container'>
+      <div class='block listing_info'>
+        <p><strong>Seller</strong> : {{item.seller}}</p>
+        <p><strong>Category</strong> : <a href="{% url 'category' item.category %}">{{item.category}}</a></p>
+        <p><strong>Starting Price</strong> : {{item.starting_price}}$</p>
+        {% if bid %}
+        <p><strong>Current Price</strong> : {{current_bid.price}}$ 
+        <br><strong>Offer placed on</strong> : {{current_bid.last_modified}} by : {{current_bid.bidder}}</p>
+        {% else %}
+        <p><strong>No bids were placed yet</strong></p>
+        {% endif %}
+      </div>
+      <div class='block listing_actions'>
+        {% if item.is_open %}
+          {% if user.is_authenticated %}
+            <a class='action_link' href = "{% url 'bid' item.id %}">
+              <button class='action_button'>Make bid</button>
+            </a>
+            {% if watchable %}
+            <a class='action_link' href = "{% url 'watchlistadd' item.id %}">
+              <button class='action_button'>Watchlist +</button>
+            </a>
+            {% else %}
+            <a class='action_link' href = "{% url 'watchlist_remove' item.id %}">
+              <button class='action_button'>Watchlist -</button>
+            </a>
+            {% endif %}
+          {% endif %}
+          {% if close %}
+          <a class='action_link' href = "{% url 'close' item.id %}">
+              <button class='action_button'>Close auction</button>
+            </a>
+          {% endif %}
+        {% endif %}
+        </div>
+    </div>
+    <div class='main block listing_comments'>
+      <h2>Comments:</h2>
+      {% if user.is_authenticated %}
+        <form method="POST" action="">
+          {{comment_form}}
+          {% csrf_token %}
+          <br>
+          <input class='action_button comment_button'type="submit" value="Post Comment">
+        </form>
+      {% endif %}
+      <hr>
+      {% for comment in comments %}
+        <div>
+          <small>{{comment.user}} | Posted : {{comment.added|timesince}} ago 
+            {% if comment.user == request.user %}
+            | 
+            <a href="{% url 'delete_comment' comment.id %}"
+            <button class="comment_delete">Delete</button>
+            </a>
+            {% endif %}
+          </small>
+          <p>{{comment.body}}</p>
+          <hr>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

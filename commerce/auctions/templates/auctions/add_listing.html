@@ -7,8 +7,15 @@
     <div>
       <form method="POST" action="">
         {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Add Listing">
+        {% for field in form %}
+          <div class='field_div'>
+            <div class='label_div'>
+              <label class="label" for="{{ field.auto_id }}">{{ field.label }}</label>
+            </div>
+            {{ field }}
+          </div>
+        {% endfor %}
+        <input class='action_button'type="submit" value="Add Listing">
       </form>
     </div>
 {% endblock %}

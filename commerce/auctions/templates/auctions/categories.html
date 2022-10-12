@@ -4,7 +4,7 @@
 {% block body %}
 
 {% for category in categories %}
-<a href="{% url 'category' category %}"><h2>{{category}}</h2></a>
+<a class='listing_title'href="{% url 'category' category %}"><h2>{{category}}</h2></a>
 {% endfor %}
 
 {% endblock %}

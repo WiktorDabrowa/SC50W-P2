@@ -5,8 +5,8 @@
     <div class="index_wrapper" >
     {% for listing in listings %}
     <div class="listing_container">
-        <a href="{% url 'listing'  listing.id %}" style="height:fit-content">
-            <h4 class="listing_title">{{listing.title}}</h4>
+        <a class='listing_title' href="{% url 'listing'  listing.id %}" style="height:fit-content">
+            {{listing.title}}
         </a>
         <hr>
         <img src="{{listing.photo}}"  alt="No image found!" style="width:28vw;height:180px;object-fit: contain;">
